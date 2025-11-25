@@ -15,8 +15,8 @@
 #include "stdio.h"
 #include "OLED.h"
 
-uint8_t MenuIdx = 2, MenuStatu = 0;
-uint8_t MenuIdxLimit[10][2] = {{1,10},{1,10},{1,20},{1,10}};
+uint8_t MenuIdx = 2, MenuStatu = 0; //0:主菜单 1:Music Statu 2:.Music List 3:Playing Mode 4:Alarm 5:Environment 6:List 7:Alarm
+uint8_t MenuIdxLimit[10][2] = {{1,10},{1,10},{1,20},{1,6},{1,10},{1,6}};
 /******************************************************************
  * 函 数 名 称：Encoder_GPIO_Init
  * 函 数 说 明：旋转编码器引脚初始化
@@ -27,15 +27,18 @@ uint8_t MenuIdxLimit[10][2] = {{1,10},{1,10},{1,20},{1,10}};
  ******************************************************************/
 void Encoder_GPIO_Init(void)
 {
+		GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);
+
     GPIO_InitTypeDef GPIO_InitStructure;
 
     // 开启时钟
     RCC_APB2PeriphClockCmd(RCC_GPIO, ENABLE);
 
-    GPIO_InitStructure.GPIO_Pin = GPIO_ENCODER_SW | GPIO_ENCODER_LCK | GPIO_ENCODER_DT;
+    GPIO_InitStructure.GPIO_Pin = GPIO_ENCODER_LCK | GPIO_ENCODER_DT | GPIO_ENCODER_SW;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU; // 上拉输入模式
     GPIO_Init(PORT_GPIO, &GPIO_InitStructure);
 
+	
     TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure; // TIMER初始化结构体
     NVIC_InitTypeDef NVIC_InitStructure;           // 中断配置结构体
 

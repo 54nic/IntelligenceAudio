@@ -18,13 +18,13 @@
 #define PORT_GPIO GPIOA
 
 // SW引脚 对应key
-#define GPIO_ENCODER_SW GPIO_Pin_8
+#define GPIO_ENCODER_SW GPIO_Pin_10
 
 // CLK引脚 对应S2
 #define GPIO_ENCODER_LCK GPIO_Pin_9
 
 // DT引脚 对应S1
-#define GPIO_ENCODER_DT GPIO_Pin_10
+#define GPIO_ENCODER_DT GPIO_Pin_8  
 
 // 获取CLK引脚的状态
 #define GET_CLK_STATE GPIO_ReadInputDataBit(PORT_GPIO, GPIO_ENCODER_LCK)

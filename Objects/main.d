@@ -30,10 +30,8 @@
 .\objects\main.o: .\Library\misc.h
 .\objects\main.o: .\System\Delay.h
 .\objects\main.o: .\Hardware\OLED.h
-.\objects\main.o: .\Hardware\LED.h
 .\objects\main.o: .\Hardware\Serial.h
 .\objects\main.o: C:\Keil_v5\ARM\ARM5\Bin\..\include\stdio.h
-.\objects\main.o: .\Hardware\Key.h
 .\objects\main.o: .\Hardware\ds1302.h
 .\objects\main.o: .\Hardware\sys.h
 .\objects\main.o: .\Hardware\dht11.h
