@@ -15,8 +15,8 @@
 #include "stdio.h"
 #include "OLED.h"
 
-uint8_t MenuIdx = 2, MenuStatu = 0; //0:主菜单 1:Music Statu 2:.Music List 3:Playing Mode 4:Alarm 5:Environment 6:List 7:Alarm
-uint8_t MenuIdxLimit[10][2] = {{1,10},{1,10},{1,20},{1,6},{1,10},{1,6}};
+uint8_t MenuIdx = 2, MenuStatu = 0; // 0:主菜单 1:Music Statu 2:.Music List 3:Playing Mode 4:Alarm 5:Environment 6:List 7:Alarm
+uint8_t MenuIdxLimit[100] = {10, 12, 20, 6, 10, 6};
 /******************************************************************
  * 函 数 名 称：Encoder_GPIO_Init
  * 函 数 说 明：旋转编码器引脚初始化
@@ -27,7 +27,8 @@ uint8_t MenuIdxLimit[10][2] = {{1,10},{1,10},{1,20},{1,6},{1,10},{1,6}};
  ******************************************************************/
 void Encoder_GPIO_Init(void)
 {
-		GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);
+    MenuIdxLimit[11] = 46;
+    GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);
 
     GPIO_InitTypeDef GPIO_InitStructure;
 
@@ -38,7 +39,6 @@ void Encoder_GPIO_Init(void)
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU; // 上拉输入模式
     GPIO_Init(PORT_GPIO, &GPIO_InitStructure);
 
-	
     TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure; // TIMER初始化结构体
     NVIC_InitTypeDef NVIC_InitStructure;           // 中断配置结构体
 
@@ -76,8 +76,8 @@ char Encoder_Scanf(void)
     char ScanResult = 0;
     // 当A发生跳变时采集B当前的状态，并将B与上一次的状态进行对比。
     if (GET_CLK_STATE != EC11_CLK_Last)
-    { // 若A 0->1 时，B 1->0 正转；若A 1->0 时，B 0->1 正转；
-      // 若A 0->1 时，B 0->1 反转；若A 1->0 时，B 1->0 反转
+    {                           // 若A 0->1 时，B 1->0 正转；若A 1->0 时，B 0->1 正转；
+                                // 若A 0->1 时，B 0->1 反转；若A 1->0 时，B 1->0 反转
         if (GET_CLK_STATE == 1) // EC11_A和上一次状态相比，为上升沿
         {
             // EC11_B和上一次状态相比，为下降沿
@@ -156,8 +156,8 @@ int Encoder_Rotation_left(void)
     static int left_num = 0; // 左转次数
     left_num++;
     /*  你的代码写在此处  */
-		MenuIdx = MenuIdxLimit[MenuStatu][0] >= MenuIdx-1 ? MenuIdxLimit[MenuStatu][0] : MenuIdx-1;
-		GPIO_SetBits(GPIOA, GPIO_Pin_7);		//LED灯亮一下
+    MenuIdx = 1 >= MenuIdx - 1 ? 1 : MenuIdx - 1;
+    GPIO_SetBits(GPIOA, GPIO_Pin_7); // LED灯亮一下
     /*  你的代码写在此处  */
     return left_num;
 }
@@ -175,8 +175,8 @@ int Encoder_Rotation_right(void)
     static int right_num = 0; // 右转次数
     right_num++;
     /*  你的代码写在此处  */
-		MenuIdx = MenuIdxLimit[MenuStatu][1] <= MenuIdx+1 ? MenuIdxLimit[MenuStatu][1] : MenuIdx+1;
-		GPIO_SetBits(GPIOA, GPIO_Pin_7);		//LED灯亮一下
+    MenuIdx = MenuIdxLimit[MenuStatu] <= MenuIdx + 1 ? MenuIdxLimit[MenuStatu] : MenuIdx + 1;
+    GPIO_SetBits(GPIOA, GPIO_Pin_7); // LED灯亮一下
     /*  你的代码写在此处  */
 
     return right_num;

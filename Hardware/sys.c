@@ -3,6 +3,5 @@
 void NVIC_Configuration(void)
 {
 
-    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);	//设置NVIC中断分组2:2位抢占优先级，2位响应优先级
-
+    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2); // 锟斤拷锟斤拷NVIC锟叫断凤拷锟斤拷2:2位锟斤拷占锟斤拷锟饺硷拷锟斤拷2位锟斤拷应锟斤拷锟饺硷拷
 }

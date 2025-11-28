@@ -2,175 +2,174 @@
 #include "Delay.h"
 
 /*-----------------------------------------------------------------------
-DHT11_Rst  			 							  : ¸´Î»DHT11
-																									 
-	
-ÊäÈë²ÎÊý                   			£º 
-                                  
-±àÐ´ÈÕÆÚ                        	£º2018Äê11ÔÂ21ÈÕ
-×îºóÐÞ¸ÄÈÕÆÚ                  		£º2018Äê11ÔÂ21ÈÕ
+DHT11_Rst  			 							  : ï¿½ï¿½Î»DHT11
+
+
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½                   			ï¿½ï¿½
+
+ï¿½ï¿½Ð´ï¿½ï¿½ï¿½ï¿½                        	ï¿½ï¿½2018ï¿½ï¿½11ï¿½ï¿½21ï¿½ï¿½
+ï¿½ï¿½ï¿½ï¿½Þ¸ï¿½ï¿½ï¿½ï¿½ï¿½                  		ï¿½ï¿½2018ï¿½ï¿½11ï¿½ï¿½21ï¿½ï¿½
 -----------------------------------------------------------------------*/
-void DHT11_Rst(void)	   
-{                 
-	DHT11_IO_OUT(); 	                                                          // SET OUTPUT
-  DHT11_DQ_OUT=0; 	                                                          // À­µÍDQ
-  Delay_ms(20);    	                                                          // À­µÍÖÁÉÙ18ms
-  DHT11_DQ_OUT=1; 	                                                          // DQ=1 
-	Delay_us(30);     	                                                        // Ö÷»úÀ­¸ß20~40us
+void DHT11_Rst(void)
+{
+	DHT11_IO_OUT();	  // SET OUTPUT
+	DHT11_DQ_OUT = 0; // ï¿½ï¿½ï¿½ï¿½DQ
+	Delay_ms(20);	  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½18ms
+	DHT11_DQ_OUT = 1; // DQ=1
+	Delay_us(30);	  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½20~40us
 }
 
 /*-----------------------------------------------------------------------
-DHT11_Check  			 						  : µÈ´ýDHT11µÄ»ØÓ¦
-																									 
-	
-ÊäÈë²ÎÊý                   			£º·µ»Ø1:Î´¼ì²âµ½DHT11µÄ´æÔÚ ·µ»Ø0:´æÔÚ
-                                  
-±àÐ´ÈÕÆÚ                        	£º2018Äê11ÔÂ21ÈÕ
-×îºóÐÞ¸ÄÈÕÆÚ                  		£º2018Äê11ÔÂ21ÈÕ
+DHT11_Check  			 						  : ï¿½È´ï¿½DHT11ï¿½Ä»ï¿½Ó¦
+
+
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½                   			ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½1:Î´ï¿½ï¿½âµ½DHT11ï¿½Ä´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½0:ï¿½ï¿½ï¿½ï¿½
+
+ï¿½ï¿½Ð´ï¿½ï¿½ï¿½ï¿½                        	ï¿½ï¿½2018ï¿½ï¿½11ï¿½ï¿½21ï¿½ï¿½
+ï¿½ï¿½ï¿½ï¿½Þ¸ï¿½ï¿½ï¿½ï¿½ï¿½                  		ï¿½ï¿½2018ï¿½ï¿½11ï¿½ï¿½21ï¿½ï¿½
 -----------------------------------------------------------------------*/
-uint8_t DHT11_Check(void) 	   
-{   
-	uint8_t retry=0;
-	DHT11_IO_IN();                                                              // SET INPUT	 
-  while (DHT11_DQ_IN&&retry<100)                                              // DHT11»áÀ­µÍ40~80us
-	{
-		retry++;
-		Delay_us(1);
-	};	 
-	if(retry>=100)return 1;
-	else retry=0;
-  while (!DHT11_DQ_IN&&retry<100)                                             // DHT11À­µÍºó»áÔÙ´ÎÀ­¸ß40~80us
+uint8_t DHT11_Check(void)
+{
+	uint8_t retry = 0;
+	DHT11_IO_IN();					   // SET INPUT
+	while (DHT11_DQ_IN && retry < 100) // DHT11ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½40~80us
 	{
 		retry++;
 		Delay_us(1);
 	};
-	if(retry>=100)return 1;	    
+	if (retry >= 100)
+		return 1;
+	else
+		retry = 0;
+	while (!DHT11_DQ_IN && retry < 100) // DHT11ï¿½ï¿½ï¿½Íºï¿½ï¿½ï¿½Ù´ï¿½ï¿½ï¿½ï¿½ï¿½40~80us
+	{
+		retry++;
+		Delay_us(1);
+	};
+	if (retry >= 100)
+		return 1;
 	return 0;
 }
- 
+
 /*-----------------------------------------------------------------------
-DHT11_Read_Bit  			 				  : ´ÓDHT11¶ÁÈ¡Ò»¸öÎ»
-																									 
-	
-ÊäÈë²ÎÊý                   			£º 
-                                  
-±àÐ´ÈÕÆÚ                        	£º2018Äê11ÔÂ21ÈÕ
-×îºóÐÞ¸ÄÈÕÆÚ                  		£º2018Äê11ÔÂ21ÈÕ
+DHT11_Read_Bit  			 				  : ï¿½ï¿½DHT11ï¿½ï¿½È¡Ò»ï¿½ï¿½Î»
+
+
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½                   			ï¿½ï¿½
+
+ï¿½ï¿½Ð´ï¿½ï¿½ï¿½ï¿½                        	ï¿½ï¿½2018ï¿½ï¿½11ï¿½ï¿½21ï¿½ï¿½
+ï¿½ï¿½ï¿½ï¿½Þ¸ï¿½ï¿½ï¿½ï¿½ï¿½                  		ï¿½ï¿½2018ï¿½ï¿½11ï¿½ï¿½21ï¿½ï¿½
 -----------------------------------------------------------------------*/
-uint8_t DHT11_Read_Bit(void) 			 
+uint8_t DHT11_Read_Bit(void)
 {
- 	uint8_t retry=0;
-	while(DHT11_DQ_IN&&retry<100)                                               // µÈ´ý±äÎªµÍµçÆ½
+	uint8_t retry = 0;
+	while (DHT11_DQ_IN && retry < 100) // ï¿½È´ï¿½ï¿½ï¿½Îªï¿½Íµï¿½Æ½
 	{
 		retry++;
 		Delay_us(1);
 	}
-	retry=0;
-	while(!DHT11_DQ_IN&&retry<100)                                              // µÈ´ý±ä¸ßµçÆ½
+	retry = 0;
+	while (!DHT11_DQ_IN && retry < 100) // ï¿½È´ï¿½ï¿½ï¿½ßµï¿½Æ½
 	{
 		retry++;
 		Delay_us(1);
 	}
-	Delay_us(40);                                                               // µÈ´ý40us
-	if(DHT11_DQ_IN)return 1;
-	else return 0;		   
+	Delay_us(40); // ï¿½È´ï¿½40us
+	if (DHT11_DQ_IN)
+		return 1;
+	else
+		return 0;
 }
- 
+
 /*-----------------------------------------------------------------------
-DHT11_Read_Byte  			 				  : ´ÓDHT11¶ÁÈ¡Ò»¸ö×Ö½Ú
-																									 
-	
-ÊäÈë²ÎÊý                   			£ºµ½µÄÊý¾Ý
-                                  
-±àÐ´ÈÕÆÚ                        	£º2018Äê11ÔÂ21ÈÕ
-×îºóÐÞ¸ÄÈÕÆÚ                  		£º2018Äê11ÔÂ21ÈÕ
+DHT11_Read_Byte  			 				  : ï¿½ï¿½DHT11ï¿½ï¿½È¡Ò»ï¿½ï¿½ï¿½Ö½ï¿½
+
+
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½                   			ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+
+ï¿½ï¿½Ð´ï¿½ï¿½ï¿½ï¿½                        	ï¿½ï¿½2018ï¿½ï¿½11ï¿½ï¿½21ï¿½ï¿½
+ï¿½ï¿½ï¿½ï¿½Þ¸ï¿½ï¿½ï¿½ï¿½ï¿½                  		ï¿½ï¿½2018ï¿½ï¿½11ï¿½ï¿½21ï¿½ï¿½
 -----------------------------------------------------------------------*/
-uint8_t DHT11_Read_Byte(void)    
-{        
-    uint8_t i,dat;
-    dat=0;
-	for (i=0;i<8;i++) 
+uint8_t DHT11_Read_Byte(void)
+{
+	uint8_t i, dat;
+	dat = 0;
+	for (i = 0; i < 8; i++)
 	{
-   		dat<<=1; 
-	    dat|=DHT11_Read_Bit();
-    }						    
-    return dat;
+		dat <<= 1;
+		dat |= DHT11_Read_Bit();
+	}
+	return dat;
 }
- 
+
 /*-----------------------------------------------------------------------
-DHT11_Read_Data  			 				  : ´ÓDHT11¶ÁÈ¡Ò»´ÎÊý¾Ý
-																									 
-	
-ÊäÈë²ÎÊý                   			£ºtemp:ÎÂ¶ÈÖµ(·¶Î§:0~50¡ã)humi:Êª¶ÈÖµ(·¶Î§:20%~90%)·µ»ØÖµ£º0,Õý³£;1,¶ÁÈ¡Ê§°Ü
-                                  
-±àÐ´ÈÕÆÚ                        	£º2018Äê11ÔÂ21ÈÕ
-×îºóÐÞ¸ÄÈÕÆÚ                  		£º2018Äê11ÔÂ21ÈÕ
+DHT11_Read_Data  			 				  : ï¿½ï¿½DHT11ï¿½ï¿½È¡Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+
+
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½                   			ï¿½ï¿½temp:ï¿½Â¶ï¿½Öµ(ï¿½ï¿½Î§:0~50ï¿½ï¿½)humi:Êªï¿½ï¿½Öµ(ï¿½ï¿½Î§:20%~90%)ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½0,ï¿½ï¿½ï¿½ï¿½;1,ï¿½ï¿½È¡Ê§ï¿½ï¿½
+
+ï¿½ï¿½Ð´ï¿½ï¿½ï¿½ï¿½                        	ï¿½ï¿½2018ï¿½ï¿½11ï¿½ï¿½21ï¿½ï¿½
+ï¿½ï¿½ï¿½ï¿½Þ¸ï¿½ï¿½ï¿½ï¿½ï¿½                  		ï¿½ï¿½2018ï¿½ï¿½11ï¿½ï¿½21ï¿½ï¿½
 -----------------------------------------------------------------------*/
-uint8_t DHT11_Read_Data(uint8_t *temph,uint8_t *templ,uint8_t *humih,uint8_t *humil,uint8_t * Val)    
-{ 	
- 	uint8_t buf[5];
+uint8_t DHT11_Read_Data(uint8_t *temph, uint8_t *templ, uint8_t *humih, uint8_t *humil, uint8_t *Val)
+{
+	uint8_t buf[5];
 	uint8_t i;
 	DHT11_Rst();
-	if(DHT11_Check()==0)
+	if (DHT11_Check() == 0)
 	{
-		for(i=0;i<5;i++)                                                          // ¶ÁÈ¡40Î»Êý¾Ý
+		for (i = 0; i < 5; i++) // ï¿½ï¿½È¡40Î»ï¿½ï¿½ï¿½ï¿½
 		{
-			buf[i]=DHT11_Read_Byte();
+			buf[i] = DHT11_Read_Byte();
 		}
-		if((buf[0]+buf[1]+buf[2]+buf[3])==buf[4])
+		if ((buf[0] + buf[1] + buf[2] + buf[3]) == buf[4])
 		{
-			*humih=buf[0];
-			*humil=buf[1];
-			
-			*temph=buf[2];
-			*templ=buf[3];
+			*humih = buf[0];
+			*humil = buf[1];
+
+			*temph = buf[2];
+			*templ = buf[3];
 		}
-		
-		if((buf[1] & 0x80) == 0)      // ÎÂ¶È>0
+
+		if ((buf[1] & 0x80) == 0) // ï¿½Â¶ï¿½>0
 		{
 			*Val = 0;
 		}
-		if((buf[1] & 0x80) == 1)      // ÎÂ¶È<0
+		if ((buf[1] & 0x80) == 1) // ï¿½Â¶ï¿½<0
 		{
 			*Val = 1;
 		}
-		
-	}else return 1;
-	return 0;	    
+	}
+	else
+		return 1;
+	return 0;
 }
- 
+
 /*-----------------------------------------------------------------------
-DHT11_Init      			 				  : ³õÊ¼»¯DHT11µÄIO¿Ú DQ Í¬Ê±¼ì²âDHT11µÄ´æÔÚ
+DHT11_Init      			 				  : ï¿½ï¿½Ê¼ï¿½ï¿½DHT11ï¿½ï¿½IOï¿½ï¿½ DQ Í¬Ê±ï¿½ï¿½ï¿½DHT11ï¿½Ä´ï¿½ï¿½ï¿½
 																									 IOKOU B7 TO A6
-	
-ÊäÈë²ÎÊý                   			£º·µ»Ø1:²»´æÔÚ  ·µ»Ø0:´æÔÚ 
-                                  
-±àÐ´ÈÕÆÚ                        	£º2018Äê11ÔÂ21ÈÕ
-×îºóÐÞ¸ÄÈÕÆÚ                  		£º2018Äê11ÔÂ21ÈÕ
+
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½                   			ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½1:ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½ï¿½ï¿½0:ï¿½ï¿½ï¿½ï¿½
+
+ï¿½ï¿½Ð´ï¿½ï¿½ï¿½ï¿½                        	ï¿½ï¿½2018ï¿½ï¿½11ï¿½ï¿½21ï¿½ï¿½
+ï¿½ï¿½ï¿½ï¿½Þ¸ï¿½ï¿½ï¿½ï¿½ï¿½                  		ï¿½ï¿½2018ï¿½ï¿½11ï¿½ï¿½21ï¿½ï¿½
 -----------------------------------------------------------------------*/
 uint8_t DHT11_Init(void)
-{	 
- 	GPIO_InitTypeDef  GPIO_InitStructure;
- 	
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);	                    // Ê¹ÄÜPG¶Ë¿ÚÊ±ÖÓ
-	
- 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;	
-	
-// 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);	                    // Ê¹ÄÜPG¶Ë¿ÚÊ±ÖÓ
-//	
-// 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7;				                          // PA6¶Ë¿ÚÅäÖÃ
- 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; 		                      //ÍÆÍìÊä³ö
- 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
- 	GPIO_Init(GPIOA, &GPIO_InitStructure);				                            //³õÊ¼»¯IO¿Ú
- 	GPIO_SetBits(GPIOA,GPIO_Pin_6);						                                // PA6 Êä³ö¸ß
-			    
-	DHT11_Rst();                                                              // ¸´Î»DHT11
-	return DHT11_Check();                                                     // µÈ´ýDHT11µÄ»ØÓ¦
-} 
+{
+	GPIO_InitTypeDef GPIO_InitStructure;
 
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE); // Ê¹ï¿½ï¿½PGï¿½Ë¿ï¿½Ê±ï¿½ï¿½
 
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;
 
+	// 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);	                    // Ê¹ï¿½ï¿½PGï¿½Ë¿ï¿½Ê±ï¿½ï¿½
+	//
+	// 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7;				                          // PA6ï¿½Ë¿ï¿½ï¿½ï¿½ï¿½ï¿½
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOA, &GPIO_InitStructure); // ï¿½ï¿½Ê¼ï¿½ï¿½IOï¿½ï¿½
+	GPIO_SetBits(GPIOA, GPIO_Pin_6);	   // PA6 ï¿½ï¿½ï¿½ï¿½ï¿½
 
-
-
-
+	DHT11_Rst();		  // ï¿½ï¿½Î»DHT11
+	return DHT11_Check(); // ï¿½È´ï¿½DHT11ï¿½Ä»ï¿½Ó¦
+}

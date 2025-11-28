@@ -1,36 +1,27 @@
 #ifndef __DHT11_H
 #define __DHT11_H
 
-#include "stm32f10x.h"  
+#include "stm32f10x.h"
 #include "sys.h"
- 
 
+#define DHT11_IO_IN()             \
+    {                             \
+        GPIOA->CRL &= 0XF0FFFFFF; \
+        GPIOA->CRL |= 8 << 24;    \
+    } // IOï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½(PA6 ï¿½ï¿½ï¿½ï¿½(CRL 0-7 CRH 8-15)
+#define DHT11_IO_OUT()            \
+    {                             \
+        GPIOA->CRL &= 0XF0FFFFFF; \
+        GPIOA->CRL |= 3 << 24;    \
+    }
+#define DHT11_DQ_OUT PAout(6) // ï¿½ï¿½ï¿½Ý¶Ë¿ï¿½
+#define DHT11_DQ_IN PAin(6)   // ï¿½ï¿½ï¿½Ý¶Ë¿ï¿½
 
-#define DHT11_IO_IN()  {GPIOA->CRL&=0XF0FFFFFF;GPIOA->CRL|=8<<24;}                                   // IO·½ÏòÉèÖÃ(PA6 ÉÏÀ­(CRL 0-7 CRH 8-15)
- #define DHT11_IO_OUT() {GPIOA->CRL&=0XF0FFFFFF;GPIOA->CRL|=3<<24;}
-#define	DHT11_DQ_OUT PAout(6)                                                                         // Êý¾Ý¶Ë¿Ú	 
-#define	DHT11_DQ_IN  PAin(6)                                                                          // Êý¾Ý¶Ë¿Ú  
-
-
-
-
-
-uint8_t DHT11_Init(void);                                                                              // ³õÊ¼»¯DHT11
-uint8_t DHT11_Read_Data(uint8_t *temph,uint8_t *templ,uint8_t *humih,uint8_t *humil,uint8_t * Val);    // ¶ÁÈ¡ÎÂÊª¶È
-uint8_t DHT11_Read_Byte(void);                                                                         // ¶Á³öÒ»¸ö×Ö½Ú
-uint8_t DHT11_Read_Bit(void);                                                                          // ¶Á³öÒ»¸öÎ»
-uint8_t DHT11_Check(void);                                                                             // ¼ì²âÊÇ·ñ´æÔÚDHT11
-void DHT11_Rst(void);                                                                                  // ¸´Î»DHT11  
-
+uint8_t DHT11_Init(void);                                                                              // ï¿½ï¿½Ê¼ï¿½ï¿½DHT11
+uint8_t DHT11_Read_Data(uint8_t *temph, uint8_t *templ, uint8_t *humih, uint8_t *humil, uint8_t *Val); // ï¿½ï¿½È¡ï¿½ï¿½Êªï¿½ï¿½
+uint8_t DHT11_Read_Byte(void);                                                                         // ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ö½ï¿½
+uint8_t DHT11_Read_Bit(void);                                                                          // ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Î»
+uint8_t DHT11_Check(void);                                                                             // ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½DHT11
+void DHT11_Rst(void);                                                                                  // ï¿½ï¿½Î»DHT11
 
 #endif
-
-
-
-
-
-
-
-
-
-

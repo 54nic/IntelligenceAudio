@@ -24,7 +24,7 @@
 #define GPIO_ENCODER_LCK GPIO_Pin_9
 
 // DT引脚 对应S1
-#define GPIO_ENCODER_DT GPIO_Pin_8  
+#define GPIO_ENCODER_DT GPIO_Pin_8
 
 // 获取CLK引脚的状态
 #define GET_CLK_STATE GPIO_ReadInputDataBit(PORT_GPIO, GPIO_ENCODER_LCK)
@@ -39,11 +39,10 @@
 #define BSP_TIMER_IRQ TIM3_IRQn              // 定时器中断
 #define BSP_TIMER_IRQHANDLER TIM3_IRQHandler // 定时器中断服务函数
 
-
 void Encoder_GPIO_Init(void);        // 旋转编码器初始化
 unsigned char Encoder_Sw_Down(void); // 编码器是否按下
 char Encoder_Scanf(void);
-int Encoder_Rotation_left(void);     // 左转服务函数
-int Encoder_Rotation_right(void);    // 右转服务函数
+int Encoder_Rotation_left(void);  // 左转服务函数
+int Encoder_Rotation_right(void); // 右转服务函数
 
 #endif
