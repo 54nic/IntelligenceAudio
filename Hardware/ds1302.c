@@ -7,13 +7,13 @@
 uint8_t read[] = {0x81, 0x83, 0x85, 0x87, 0x89, 0x8b, 0x8d};  // 读秒、分、时、日、月、周、年的寄存器地址
 uint8_t write[] = {0x80, 0x82, 0x84, 0x86, 0x88, 0x8a, 0x8c}; // 写秒、分、时、日、月、周、年的寄存器地址
 
-uint8_t TIME[7] = {0x40, 0x59, 0x23, 0x24, 0x09, 0x02, 0x24};
+uint8_t TIME[7] = {0x40, 0x59, 0x23, 0x24, 0x09, 0x02, 0x24}; // 64 89 35 36 9 2 35
 
 // DS1302时钟端口定义
-void GPIO_Configuration(void)
+void ds1302_init(void)
 {
 	GPIO_InitTypeDef GPIO_InitStruct;
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);			  // 开启GPIOA时钟
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);			  // 开启GPIO时钟
 	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_10 | GPIO_Pin_0; // 设置引脚号
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;					  // 设置GPIO的模式
 
@@ -124,7 +124,7 @@ uint8_t read_1302(uint8_t address)
 }
 
 // 初始化1302
-void ds1302_init(void)
+void Ds1302Set(void)
 {
 	uint8_t i = 0;
 	write_1302(0x8e, 0x00); // 关闭写保护

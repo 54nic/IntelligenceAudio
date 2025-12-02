@@ -16,7 +16,7 @@
 #include "OLED.h"
 
 uint8_t MenuIdx = 2, MenuStatu = 0; // 0:主菜单 1:Music Statu 2:.Music List 3:Playing Mode 4:Alarm 5:Environment 6:List 7:Alarm
-uint8_t MenuIdxLimit[100] = {10, 12, 20, 6, 10, 6};
+uint8_t MenuIdxLimit[100] = {10, 14, 20, 12, 6, 6};
 /******************************************************************
  * 函 数 名 称：Encoder_GPIO_Init
  * 函 数 说 明：旋转编码器引脚初始化
@@ -28,6 +28,11 @@ uint8_t MenuIdxLimit[100] = {10, 12, 20, 6, 10, 6};
 void Encoder_GPIO_Init(void)
 {
     MenuIdxLimit[11] = 46;
+    MenuIdxLimit[20] = 44;
+    MenuIdxLimit[51] = 8;
+    MenuIdxLimit[52] = 6;
+    for (int i = 21; i <= 29; i++)
+        MenuIdxLimit[i] = 4;
     GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);
 
     GPIO_InitTypeDef GPIO_InitStructure;

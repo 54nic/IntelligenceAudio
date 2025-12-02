@@ -22,7 +22,6 @@ void Ds1302ReadTime(uint8_t *Read_Time);
 uint8_t Judge_Week(uint16_t y, uint8_t m, uint8_t d);
 uint8_t Z10BCD(uint8_t date);
 uint8_t BCDTO10(uint8_t date);
-
-void GPIO_Configuration(void);
+void Ds1302Set(void);
 
 #endif
