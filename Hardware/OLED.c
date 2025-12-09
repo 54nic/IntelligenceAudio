@@ -160,6 +160,8 @@ void OLED_ShowString(uint8_t Line, uint8_t Column, char *String)
 	for (i = 0; String[i] != '\0'; i++)
 	{
 		OLED_ShowChar(Line, Column + i, String[i]);
+		if (Column + i >= 16)
+			break;
 	}
 }
 
@@ -286,6 +288,19 @@ void OLED_ShowHanZi(uint8_t Line, uint8_t Column, uint8_t Character)
 		OLED_WriteData(OLED_F8x16[Character + 1][i + 8]); // 显示下半部分内容
 	}
 }
+void OLED_ShowPicture()
+{
+	int i = 0, j = 0;
+	for (i = 0; i < 128; i++)
+	{
+		for (j = 0; j < 8; j++)
+		{
+			OLED_SetCursor(j, i); // 设置光标位置在上半部分
+			OLED_WriteData(Picture1[i][j]);
+		}
+	}
+}
+
 /**
  * @brief  OLED初始化
  * @param  无

@@ -16,7 +16,6 @@
 #include "OLED.h"
 
 uint8_t MenuIdx = 2, MenuStatu = 0; // 0:主菜单 1:Music Statu 2:.Music List 3:Playing Mode 4:Alarm 5:Environment 6:List 7:Alarm
-uint8_t MenuIdxLimit[100] = {10, 14, 20, 12, 6, 6};
 /******************************************************************
  * 函 数 名 称：Encoder_GPIO_Init
  * 函 数 说 明：旋转编码器引脚初始化
@@ -27,43 +26,45 @@ uint8_t MenuIdxLimit[100] = {10, 14, 20, 12, 6, 6};
  ******************************************************************/
 void Encoder_GPIO_Init(void)
 {
-    MenuIdxLimit[11] = 46;
-    MenuIdxLimit[20] = 44;
-    MenuIdxLimit[51] = 8;
-    MenuIdxLimit[52] = 6;
-    for (int i = 21; i <= 29; i++)
-        MenuIdxLimit[i] = 4;
-    GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);
+
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
 
     GPIO_InitTypeDef GPIO_InitStructure;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-    // 开启时钟
-    RCC_APB2PeriphClockCmd(RCC_GPIO, ENABLE);
+    TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure;
+    TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
+    TIM_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Up;
+    TIM_TimeBaseInitStructure.TIM_Period = 65536 - 1; // ARR
+    TIM_TimeBaseInitStructure.TIM_Prescaler = 1 - 1;  // PSC
+    TIM_TimeBaseInitStructure.TIM_RepetitionCounter = 0;
+    TIM_TimeBaseInit(TIM1, &TIM_TimeBaseInitStructure);
 
-    GPIO_InitStructure.GPIO_Pin = GPIO_ENCODER_LCK | GPIO_ENCODER_DT | GPIO_ENCODER_SW;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU; // 上拉输入模式
-    GPIO_Init(PORT_GPIO, &GPIO_InitStructure);
+    TIM_ICInitTypeDef TIM_ICInitStructure;
+    TIM_ICStructInit(&TIM_ICInitStructure);
+    TIM_ICInitStructure.TIM_Channel = TIM_Channel_1;
+    TIM_ICInitStructure.TIM_ICFilter = 0xF;
+    TIM_ICInit(TIM1, &TIM_ICInitStructure);
+    TIM_ICInitStructure.TIM_Channel = TIM_Channel_2;
+    TIM_ICInitStructure.TIM_ICFilter = 0xF;
+    TIM_ICInit(TIM1, &TIM_ICInitStructure);
 
-    TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure; // TIMER初始化结构体
-    NVIC_InitTypeDef NVIC_InitStructure;           // 中断配置结构体
+    TIM_EncoderInterfaceConfig(TIM1, TIM_EncoderMode_TI12, TIM_ICPolarity_Rising, TIM_ICPolarity_Rising);
 
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
+    TIM_Cmd(TIM1, ENABLE);
 
-    TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
-    TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
-    TIM_TimeBaseStructure.TIM_Period = 100; // 10ms进入一次中断
-    TIM_TimeBaseStructure.TIM_Prescaler = 3600 - 1;
-    TIM_TimeBaseInit(BSP_TIMER, &TIM_TimeBaseStructure);
+    TIM_SetCounter(TIM1, 2);
+}
 
-    TIM_ITConfig(BSP_TIMER, TIM_IT_Update, ENABLE);
-
-    NVIC_InitStructure.NVIC_IRQChannel = BSP_TIMER_IRQ;
-    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x01;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x03;
-    NVIC_Init(&NVIC_InitStructure);
-
-    TIM_Cmd(BSP_TIMER, ENABLE); // 使能定时器
+int16_t Encoder_Get(void)
+{
+    int16_t temp = TIM_GetCounter(TIM1);
+    TIM_SetCounter(TIM1, 0);
+    return temp;
 }
 
 /******************************************************************
@@ -161,7 +162,6 @@ int Encoder_Rotation_left(void)
     static int left_num = 0; // 左转次数
     left_num++;
     /*  你的代码写在此处  */
-    MenuIdx = 1 >= MenuIdx - 1 ? 1 : MenuIdx - 1;
     GPIO_SetBits(GPIOA, GPIO_Pin_7); // LED灯亮一下
     /*  你的代码写在此处  */
     return left_num;
@@ -180,7 +180,6 @@ int Encoder_Rotation_right(void)
     static int right_num = 0; // 右转次数
     right_num++;
     /*  你的代码写在此处  */
-    MenuIdx = MenuIdxLimit[MenuStatu] <= MenuIdx + 1 ? MenuIdxLimit[MenuStatu] : MenuIdx + 1;
     GPIO_SetBits(GPIOA, GPIO_Pin_7); // LED灯亮一下
     /*  你的代码写在此处  */
 

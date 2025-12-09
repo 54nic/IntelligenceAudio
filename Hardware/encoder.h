@@ -44,5 +44,6 @@ unsigned char Encoder_Sw_Down(void); // 编码器是否按下
 char Encoder_Scanf(void);
 int Encoder_Rotation_left(void);  // 左转服务函数
 int Encoder_Rotation_right(void); // 右转服务函数
+int16_t Encoder_Get(void);
 
 #endif

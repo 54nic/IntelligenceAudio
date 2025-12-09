@@ -9,57 +9,66 @@
 uint8_t ReadTime[7];
 extern uint8_t TIME[7];
 extern uint8_t MenuIdx, MenuStatu;
-extern uint8_t MenuIdxLimit[100];
-char MainMenu[10][20] = {" ",
-						 "1.Music Statu",
-						 "2.Music List",
-						 "3.Alarm",
-						 "4.Environment",
-						 "5.Settings",
-						 "     ",
-						 "     "};
-char MusicStatu[10][20] = {" ", "Play", "Next", "Last", "Volumn", "All Songs", "Mode", "Back", "    "};
-char MusicList[15][20] = {" ", "List1", "List2", "List3", "List4", "List5", "List6", "List7", "List8", "List9", "Back", " "};
-char PlayingMode[10][20] = {" ", "Earphone", "Speaker", "Back", "   ", "    "};
-char Alarm[10][20] = {" ", "Alarm1", "Alarm2", "Alarm3", "Alarm4", "Alarm5", "Back", "    "};
-char Environment[10][20] = {" ", "Temperature", "Humidity", "Back", "  ", "   ", "    "};
-char Settings[10][20] = {" ", "Time", "PlayingMode", "Back", " ", " ", " ", "    "};
-char Songs[30][30] = {" ", "9420", "Black Magic", "Bleeding Love", "Bones", "Drown", "Flower dance", "In The Shadow Of The Sun", "Like I Love You", "Komorebi",
-					  "Letting Go", "Star Unkind", "Stay", "Take a While", "Take Me Back", "Take Me to Infinity", "There For You", "Tonight", "Umbrella", "Viva La Vida", "Wait Another Day", "Watch Me Work", "What Do You Mean", "Back", "    "};
-char ListChange[15][16] = {" ", "Add", "Back", " "};
+
 uint8_t List[15][20] = {0};
-uint8_t ring[15][3] = {{20, 24, 4}};
+uint8_t ring[15][3] = {{1, 30, 6}}; //{h,m,sid}
 uint8_t ListNum[15] = {0};
 
-uint8_t optRecord;
-int getSong(int MenuStatu_)
+int MenuLoop(char **Menu, int max)
 {
-	uint8_t inner_optRecord;
-	MenuStatu = 20;
+	OLED_Clear();
+	int optRecord, opt = 1;
 	while (1)
 	{
-		uint8_t opt = (1 + MenuIdx) / 2;
-		if (inner_optRecord != opt)
-			OLED_Clear();
-		OLED_ShowString(1, 1, "Select a option");
-		if (opt <= 0)
+
+		int tmp = Encoder_Get() / 4;
+		if (tmp > 0)
+			opt = optRecord + 1;
+		if (tmp < 0)
+			opt = optRecord - 1;
+
+		if (opt < 1)
 			opt = 1;
-		OLED_ShowString(2, 1, Songs[opt - 1]);
-		OLED_ShowString(3, 1, ">");
-		OLED_ShowString(3, 2, Songs[opt]);
-		OLED_ShowString(4, 1, Songs[opt + 1]);
-		if (Encoder_Sw_Down() == 1) // 旋转编码器被按下
-		{
+		if (opt > max)
+			opt = max;
+		if (opt != optRecord)
 			OLED_Clear();
-			MenuStatu = MenuStatu_;
+
+		OLED_ShowString(1, 1, "Select a option");
+
+		OLED_ShowString(2, 1, Menu[opt - 1]);
+		OLED_ShowString(3, 1, ">");
+		OLED_ShowString(3, 2, Menu[opt]);
+		OLED_ShowString(4, 1, Menu[opt + 1]);
+		optRecord = opt;
+		if (Encoder_Sw_Down() == 1)
+		{
+
+			OLED_Clear();
 			return opt;
 		}
-
-		inner_optRecord = opt;
 	}
 }
+
 int main(void)
 {
+
+	uint8_t optRecord;
+	char *MainMenu[20] = {" ",
+						  "1.Music Statu",
+						  "2.Music List",
+						  "3.Alarm",
+						  "4.Environment",
+						  "5.Settings",
+						  "     ",
+						  "     "};
+	char *MusicStatu[20] = {" ", "Play", "Next", "Last", "Volumn", "All Songs", "Mode", "Back", "    "};
+	char *MusicList[20] = {" ", "List1", "List2", "List3", "List4", "List5", "List6", "List7", "List8", "List9", "Back", " "};
+	char *PlayingMode[20] = {" ", "Earphone", "Speaker", "Back", "   ", "    "};
+	char *Alarm[20] = {" ", "Alarm1", "Alarm2", "Alarm3", "Alarm4", "Alarm5", "Back", "    "};
+	char *Settings[20] = {" ", "Time", "Audio Device", "Back", " ", " ", " ", "    "};
+	char *Songs[30] = {" ", "9420", "Black Magic", "Bleeding Love", "Bones", "Drown", "Flower dance", "In The Shadow Of The Sun", "Like I Love You", "Komorebi",
+					   "Letting Go", "Star Unkind", "Stay", "Take a While", "Take Me Back", "Take Me to Infinity", "There For You", "Tonight", "Umbrella", "Viva La Vida", "Wait Another Day", "Watch Me Work", "What Do You Mean", "Back", "    "};
 	int8_t playing = 0;
 	/*模块初始化*/
 	OLED_Init();   // OLED初始化
@@ -92,6 +101,7 @@ int main(void)
 	Serial_TxPacket[2] = 0x01;
 	Serial_SendPacket();
 	OLED_ShowString(2, 2, "Welcome");
+	OLED_ShowPicture();
 
 	Delay_ms(1000);
 	while (1)
@@ -119,170 +129,295 @@ int main(void)
 		Serial_TxPacket[0] = 0x00;
 		Serial_TxPacket[1] = 0x00;
 		Serial_TxPacket[2] = 0x00;
-		uint8_t opt = (1 + MenuIdx) / 2;
-		if (opt != optRecord)
-			OLED_Clear();
-		// GPIO_SetBits(GPIOA, GPIO_Pin_4);		//LED灯亮一下
-		// GPIO_ResetBits(GPIOA, GPIO_Pin_7);		//LED灯亮一下
-		//	Delay_ms(50);
+
 		if (MenuStatu == 0)
 		{
-			OLED_ShowString(1, 1, "Select a option");
-			if (opt <= 0)
-				opt = 1;
-			// OLED_ShowNum(1,1, MenuIdx, 2);
-			OLED_ShowString(2, 1, MainMenu[opt - 1]);
-			OLED_ShowString(3, 1, ">");
-			OLED_ShowString(3, 2, MainMenu[opt]);
-			OLED_ShowString(4, 1, MainMenu[opt + 1]);
-			if (Encoder_Sw_Down() == 1) // 旋转编码器被按下
-			{
-				GPIO_SetBits(GPIOA, GPIO_Pin_7); // LED灯亮一下
-				MenuStatu = opt;
-				MenuIdx = 2;
-				Delay_ms(50);
-				OLED_Clear();
-			}
+			int opt = MenuLoop(MainMenu, 5);
+			GPIO_SetBits(GPIOA, GPIO_Pin_7); // LED灯亮一下
+			MenuStatu = opt;
+			MenuIdx = 2;
+			Delay_ms(50);
+			OLED_Clear();
 		}
 		//"1.Music Statu",
 		if (MenuStatu == 1)
 		{
-			if (Encoder_Sw_Down() == 1 && optRecord == 4) // 旋转编码器被按下
-			{
-				if (opt < optRecord)
-				{
-					Serial_TxPacket[0] = 0x03;
-					Serial_TxPacket[1] = 0x05;
-					Serial_TxPacket[2] = 0x06;
-					OLED_ShowString(3, 9, "++");
-				}
-				if (opt > optRecord)
-				{
-					Serial_TxPacket[0] = 0x03;
-					Serial_TxPacket[1] = 0x06;
-					Serial_TxPacket[2] = 0x05;
-					OLED_ShowString(3, 9, "--");
-				}
-				Serial_SendPacket(); // 串口发送数据包Serial_TxPacket
-				opt = optRecord;
-				MenuIdx = 2 * opt - 1;
-			}
-			OLED_ShowString(1, 1, "Select a option");
-			if (opt <= 0)
-				opt = 1;
-			OLED_ShowString(2, 1, MusicStatu[opt - 1]);
-			OLED_ShowString(3, 1, ">");
-			OLED_ShowString(3, 2, MusicStatu[opt]);
-			OLED_ShowString(4, 1, MusicStatu[opt + 1]);
 
-			if (Encoder_Sw_Down() == 1 && opt != 4) // 旋转编码器被按下
+			int opt = MenuLoop(MusicStatu, 7);
+
+			GPIO_SetBits(GPIOA, GPIO_Pin_7); // LED灯亮一下
+			Delay_ms(50);
+			if (opt == 1)
 			{
-				GPIO_SetBits(GPIOA, GPIO_Pin_7); // LED灯亮一下
-				Delay_ms(50);
-				if (opt == 1)
+				if (!playing)
 				{
-					if (!playing)
+					Serial_TxPacket[0] = 0x03;
+					Serial_TxPacket[1] = 0x01;
+					Serial_TxPacket[2] = 0x02;
+					playing = 1;
+				}
+				else
+				{
+					Serial_TxPacket[0] = 0x03; // 暂停
+					Serial_TxPacket[1] = 0x02;
+					Serial_TxPacket[2] = 0x01;
+					playing = 0;
+				}
+			}
+			else if (opt == 2)
+			{
+				Serial_TxPacket[0] = 0x03;
+				Serial_TxPacket[1] = 0x03;
+				Serial_TxPacket[2] = 0x00;
+			}
+			else if (opt == 3)
+			{
+				Serial_TxPacket[0] = 0x03;
+				Serial_TxPacket[1] = 0x04;
+				Serial_TxPacket[2] = 0x07;
+			}
+			else if (opt == 4)
+			{
+				while (1)
+				{
+					OLED_ShowString(3, 9, "  ");
+
+					int tmp = Encoder_Get() / 4;
+					if (tmp < 0)
 					{
 						Serial_TxPacket[0] = 0x03;
-						Serial_TxPacket[1] = 0x01;
-						Serial_TxPacket[2] = 0x02;
-						playing = 1;
+						Serial_TxPacket[1] = 0x05;
+						Serial_TxPacket[2] = 0x06;
+						OLED_ShowString(3, 9, "++");
+						Serial_SendPacket();
 					}
-					else
+					if (tmp > 0)
 					{
-						Serial_TxPacket[0] = 0x03; // 暂停
-						Serial_TxPacket[1] = 0x02;
-						Serial_TxPacket[2] = 0x01;
-						playing = 0;
+						Serial_TxPacket[0] = 0x03;
+						Serial_TxPacket[1] = 0x06;
+						Serial_TxPacket[2] = 0x05;
+						OLED_ShowString(3, 9, "--");
+						Serial_SendPacket();
+					}
+					Delay_ms(10);
+
+					if (Encoder_Sw_Down() == 1)
+					{
+						break;
 					}
 				}
-				else if (opt == 2)
-				{
-
-					Serial_TxPacket[0] = 0x03;
-					Serial_TxPacket[1] = 0x03;
-					Serial_TxPacket[2] = 0x00;
-				}
-				else if (opt == 3)
-				{
-					Serial_TxPacket[0] = 0x03;
-					Serial_TxPacket[1] = 0x04;
-					Serial_TxPacket[2] = 0x07;
-				}
-				else if (opt == 5)
-				{
-					MenuStatu = 11;
-					MenuIdx = 2;
-				}
-				else if (opt == 6)
-				{
-				}
-				else if (opt == 7)
-				{
-					MenuStatu = 0;
-					MenuIdx = 2;
-				}
-				Serial_SendPacket();						  // 串口发送数据包Serial_TxPacket
-				OLED_ShowHexNum(2, 1, Serial_TxPacket[0], 2); // 显示发送的数据包
-				OLED_ShowHexNum(2, 4, Serial_TxPacket[1], 2);
-				OLED_ShowHexNum(2, 7, Serial_TxPacket[2], 2);
-				Delay_ms(100);
-				OLED_Clear();
 			}
+			else if (opt == 5)
+			{
+				int play = MenuLoop(Songs, 23);
+				while (play < 23)
+				{
+					Serial_SendByte(0x7e);
+					Serial_SendByte(0x05);
+					Serial_SendByte(0x41);
+					Serial_SendByte(0x00);
+					Serial_SendByte(play);
+					Serial_SendByte(05 ^ (0x41) ^ 00 ^ play);
+					Serial_SendByte(0xef);
+					playing = 1;
+					play = MenuLoop(Songs, 23);
+				}
+			}
+			else if (opt == 6)
+			{
+				char *CycleMode[8] = {" ", "Ordered", "Only", "Random", "No Cycle", "Back", " "};
+				int mode = MenuLoop(CycleMode, 5);
+				if (mode < 5)
+				{
+					Serial_SendByte(0x7e);
+					Serial_SendByte(0x04);
+					Serial_SendByte(0x33);
+					Serial_SendByte(mode);
+					Serial_SendByte(04 ^ (0x33) ^ mode);
+					Serial_SendByte(0xef);
+				}
+			}
+			else if (opt == 7)
+			{
+				MenuStatu = 0;
+				MenuIdx = 2;
+			}
+			Serial_SendPacket();						  // 串口发送数据包Serial_TxPacket
+			OLED_ShowHexNum(2, 1, Serial_TxPacket[0], 2); // 显示发送的数据包
+			OLED_ShowHexNum(2, 4, Serial_TxPacket[1], 2);
+			OLED_ShowHexNum(2, 7, Serial_TxPacket[2], 2);
+			Delay_ms(100);
+			OLED_Clear();
 		}
+
 		//	"2.Music List",
 		if (MenuStatu == 2)
 		{
-			OLED_ShowString(1, 1, "Select a option");
-			if (opt <= 0)
-				opt = 1;
-			OLED_ShowString(2, 1, MusicList[opt - 1]);
-			OLED_ShowString(3, 1, ">");
-			OLED_ShowString(3, 2, MusicList[opt]);
-			OLED_ShowString(4, 1, MusicList[opt + 1]);
-			if (Encoder_Sw_Down() == 1) // 旋转编码器被按下
+			int lid = MenuLoop(MusicList, 10);
+			GPIO_SetBits(GPIOA, GPIO_Pin_7); // LED灯亮一下
+			Delay_ms(50);
+			OLED_Clear();
+			if (lid < 10)
 			{
-				GPIO_SetBits(GPIOA, GPIO_Pin_7); // LED灯亮一下
-				Delay_ms(50);
-				OLED_Clear();
-				if (opt < 10)
+				int opt = 1;
+				while (1)
 				{
-					MenuStatu = 20 + opt;
-					MenuIdx = 2;
+					int tmp = Encoder_Get() / 4;
+					if (tmp > 0)
+						opt = optRecord + 1;
+					if (tmp < 0)
+						opt = optRecord - 1;
+
+					if (opt != optRecord)
+						OLED_Clear();
+
+					OLED_ShowString(1, 1, "Edit Your Songs");
+					if (opt <= 0)
+						opt = 1;
+					uint8_t id = lid;
+					if (opt > ListNum[id] + 2)
+						opt = ListNum[id] + 2;
+
+					if (opt < ListNum[id])
+					{
+						OLED_ShowString(2, 1, Songs[List[id][opt - 1]]);
+						OLED_ShowString(3, 1, ">");
+						OLED_ShowString(3, 2, Songs[List[id][opt]]);
+						OLED_ShowString(4, 1, Songs[List[id][opt + 1]]);
+					}
+					else if (opt == ListNum[id])
+					{
+						OLED_ShowString(2, 1, Songs[List[id][opt - 1]]);
+						OLED_ShowString(3, 1, ">");
+						OLED_ShowString(3, 2, Songs[List[id][opt]]);
+						OLED_ShowString(4, 1, "Add");
+					}
+					else if (opt == ListNum[id] + 1)
+					{
+
+						OLED_ShowString(2, 1, Songs[List[id][opt - 1]]);
+						OLED_ShowString(3, 1, ">");
+						OLED_ShowString(3, 2, "Add");
+						OLED_ShowString(4, 1, "Back");
+					}
+					else if (opt == ListNum[id] + 2)
+					{
+
+						OLED_ShowString(2, 1, "Add");
+						OLED_ShowString(3, 1, ">");
+						OLED_ShowString(3, 2, "Back");
+					}
+
+					if (Encoder_Sw_Down() == 1) // 旋转编码器被按下
+					{
+						GPIO_SetBits(GPIOA, GPIO_Pin_7); // LED灯亮一下
+						Delay_ms(50);
+						OLED_Clear();
+						if (opt == ListNum[id] + 1)
+						{
+							int NSong = MenuLoop(Songs, 23);
+							OLED_Clear();
+							List[id][opt] = NSong;
+							ListNum[id]++;
+						}
+						else if (opt == ListNum[id] + 2)
+							break;
+
+						else if (opt <= ListNum[id])
+						{
+							for (int i = opt; i < ListNum[id]; i++)
+							{
+								List[id][i] = List[id][i + 1];
+							}
+							ListNum[id]--;
+						}
+						MenuIdx = 2;
+					}
+					optRecord = opt;
 				}
-				else if (opt == 10)
-				{
-					MenuStatu = 0;
-					MenuIdx = 2;
-				}
+				MenuIdx = 2;
+			}
+			else if (lid == 10)
+			{
+				MenuStatu = 0;
+				MenuIdx = 2;
 			}
 		}
 		//	"3.Alarm",
 		if (MenuStatu == 3)
 		{
-			OLED_ShowString(1, 1, "Select a option");
-
-			if (opt <= 0)
-				opt = 1;
-
-			OLED_ShowString(2, 1, Alarm[opt - 1]);
-			OLED_ShowString(3, 1, ">");
-			OLED_ShowString(3, 2, Alarm[opt]);
-			OLED_ShowString(4, 1, Alarm[opt + 1]);
-
-			if (Encoder_Sw_Down() == 1) // 旋转编码器被按下
+			int aid = MenuLoop(Alarm, 6);
+			GPIO_SetBits(GPIOA, GPIO_Pin_7); // LED灯亮一下
+			Delay_ms(50);
+			OLED_Clear();
+			if (aid < 6)
 			{
-				GPIO_SetBits(GPIOA, GPIO_Pin_7); // LED灯亮一下
-				Delay_ms(50);
-				OLED_Clear();
-				if (opt < 6)
+
+				int optRecord = 1;
+				int t = 1;
+				int8_t timesetting[3] = {current_hour, current_minute, -1};
+				while (1)
 				{
-					MenuStatu = 30 + opt;
+					int tmp = Encoder_Get() / 4;
+					if (tmp > 0)
+						t = optRecord + 1;
+					if (tmp < 0)
+						t = optRecord - 1;
+
+					if (t != optRecord)
+						OLED_Clear();
+
+					if (t <= 0)
+						t = 1;
+					if (t > 4)
+						t = 4;
+
+					OLED_ShowString(1, 2, "Hour:");
+					OLED_ShowNum(1, 9, timesetting[0], 2);
+					OLED_ShowString(2, 2, "Minute:");
+					OLED_ShowNum(2, 9, timesetting[1], 2);
+					OLED_ShowString(3, 2, "Ring:");
+					if (timesetting[2] > 0)
+						OLED_ShowNum(3, 9, timesetting[2], 2);
+					else
+						OLED_ShowString(3, 9, "Null");
+					OLED_ShowString(4, 2, "Back");
+
+					OLED_ShowString(t, 1, ">");
+
+					if (Encoder_Sw_Down() == 1)
+					{
+						if (t < 3)
+						{
+							timesetting[t - 1]++;
+							if (timesetting[0] >= 24)
+								timesetting[0] -= 24;
+							if (timesetting[1] >= 60)
+								timesetting[1] -= 60;
+						}
+						else if (t == 3)
+						{
+							int rid = MenuLoop(Songs, 23);
+							if (rid < 23)
+								timesetting[2] = rid;
+							else
+								timesetting[2] = -1;
+						}
+						else if (t == 4)
+						{
+							ring[aid][0] = timesetting[0];
+							ring[aid][1] = timesetting[1];
+							ring[aid][2] = timesetting[2];
+							MenuIdx = 2;
+							break;
+						}
+					}
+					optRecord = t;
 				}
-				else if (opt == 6)
-					MenuStatu = 0;
-				MenuIdx = 2;
 			}
+			else if (aid == 6)
+				MenuStatu = 0;
+			MenuIdx = 2;
 		}
 		//	"4.Environment",
 		if (MenuStatu == 4)
@@ -321,222 +456,113 @@ int main(void)
 		//	"5.Settings",
 		if (MenuStatu == 5)
 		{
-			OLED_ShowString(1, 1, "Select a option");
 
-			if (opt <= 0)
-				opt = 1;
+			int opt = MenuLoop(Settings, 3);
 
-			OLED_ShowString(2, 1, Settings[opt - 1]);
-			OLED_ShowString(3, 1, ">");
-			OLED_ShowString(3, 2, Settings[opt]);
-			OLED_ShowString(4, 1, Settings[opt + 1]);
-
-			if (Encoder_Sw_Down() == 1) // 旋转编码器被按下
+			GPIO_SetBits(GPIOA, GPIO_Pin_7); // LED灯亮一下
+			Delay_ms(50);
+			OLED_Clear();
+			if (opt == 1)
 			{
-				GPIO_SetBits(GPIOA, GPIO_Pin_7); // LED灯亮一下
-				Delay_ms(50);
-				OLED_Clear();
-				if (opt == 1)
+				int optRecord = 1;
+				int t = 1;
+				while (1)
 				{
-					MenuStatu = 51;
-				}
-				else if (opt == 2)
-				{
-					MenuStatu = 52;
-				}
-				else if (opt == 3)
-				{
-					MenuStatu = 0;
-				}
-				MenuIdx = 2;
-			}
-		}
-		if (MenuStatu == 11)
-		{
-			OLED_ShowString(1, 1, "Select a option");
-			if (opt <= 0)
-				opt = 1;
-			OLED_ShowString(2, 1, Songs[opt - 1]);
-			OLED_ShowString(3, 1, ">");
-			OLED_ShowString(3, 2, Songs[opt]);
-			OLED_ShowString(4, 1, Songs[opt + 1]);
+					int tmp = Encoder_Get() / 4;
+					if (tmp > 0)
+						t = optRecord + 1;
+					if (tmp < 0)
+						t = optRecord - 1;
 
-			if (Encoder_Sw_Down() == 1) // 旋转编码器被按下
-			{
-				if (opt < 23)
-				{
-					Serial_SendByte(0x7e);
-					Serial_SendByte(0x05);
-					Serial_SendByte(0x41);
-					Serial_SendByte(0x00);
-					Serial_SendByte(opt);
-					Serial_SendByte(05 ^ (0x41) ^ 00 ^ opt);
-					Serial_SendByte(0xef);
-					playing = 1;
-				}
-				if (opt == 23)
-				{
-					MenuStatu = 0;
-					MenuIdx = 2;
-				}
-			}
-		}
-		if (MenuStatu > 20 && MenuStatu < 30)
-		{
-			OLED_ShowString(1, 1, "Edit Your Songs");
+					if (t != optRecord)
+						OLED_Clear();
 
-			if (opt <= 0)
-				opt = 1;
-			uint8_t id = MenuStatu - 20;
+					if (t <= 0)
+						t = 1;
+					if (t > 4)
+						t = 4;
+					uint8_t timesetting[3] = {BCDTO10(TIME[0]), BCDTO10(TIME[1]), BCDTO10(TIME[2])};
 
-			if (opt < ListNum[id])
-			{
-				OLED_ShowString(2, 1, Songs[List[id][opt - 1]]);
-				OLED_ShowString(3, 1, ">");
-				OLED_ShowString(3, 2, Songs[List[id][opt]]);
-				OLED_ShowString(4, 1, Songs[List[id][opt + 1]]);
-			}
-			else if (opt == ListNum[id])
-			{
-				OLED_ShowString(2, 1, Songs[List[id][opt - 1]]);
-				OLED_ShowString(3, 1, ">");
-				OLED_ShowString(3, 2, Songs[List[id][opt]]);
-				OLED_ShowString(4, 1, "Add");
-			}
-			else if (opt == ListNum[id] + 1)
-			{
+					OLED_ShowString(1, 2, "hour:");
+					OLED_ShowNum(1, 9, timesetting[2], 2);
+					OLED_ShowString(2, 2, "Minute:");
+					OLED_ShowNum(2, 9, timesetting[1], 2);
+					OLED_ShowString(3, 2, "Second:");
+					OLED_ShowNum(3, 9, timesetting[0], 2);
+					OLED_ShowString(4, 2, "Back");
 
-				OLED_ShowString(2, 1, Songs[List[id][opt - 1]]);
-				OLED_ShowString(3, 1, ">");
-				OLED_ShowString(3, 2, "Add");
-				OLED_ShowString(4, 1, "Back");
-			}
-			else if (opt == ListNum[id] + 2)
-			{
+					OLED_ShowString(t, 1, ">");
 
-				OLED_ShowString(2, 1, "Add");
-				OLED_ShowString(3, 1, ">");
-				OLED_ShowString(3, 2, "Back");
-			}
-
-			if (Encoder_Sw_Down() == 1) // 旋转编码器被按下
-			{
-				GPIO_SetBits(GPIOA, GPIO_Pin_7); // LED灯亮一下
-				Delay_ms(50);
-				OLED_Clear();
-				if (opt == ListNum[id] + 1)
-				{
-					int NSong = getSong(MenuStatu);
-					List[id][opt] = NSong;
-					ListNum[id]++;
-					MenuIdxLimit[MenuStatu] += 2;
-				}
-				else if (opt == ListNum[id] + 2)
-				{
-					MenuStatu = 0;
-				}
-
-				else if (opt <= ListNum[id])
-				{
-					for (int i = opt; i < ListNum[id]; i++)
+					if (Encoder_Sw_Down() == 1)
 					{
-						List[id][i] = List[id][i + 1];
+						if (t < 4)
+						{
+							timesetting[3 - t]++;
+							if (timesetting[2] >= 24)
+								timesetting[2] -= 24;
+							if (timesetting[1] >= 60)
+								timesetting[1] -= 60;
+							if (timesetting[0] >= 60)
+								timesetting[0] -= 60;
+							TIME[0] = Z10BCD(timesetting[0]);
+							TIME[1] = Z10BCD(timesetting[1]);
+							TIME[2] = Z10BCD(timesetting[2]);
+						}
+						else if (t == 4)
+						{
+							Ds1302Set();
+							MenuIdx = 2;
+							break;
+						}
 					}
-					ListNum[id]--;
-					MenuIdxLimit[MenuStatu] -= 2;
-				}
-				MenuIdx = 2;
-			}
-		}
-
-		if (MenuStatu > 30 && MenuStatu < 40)
-		{
-
-			uint8_t timesetting[3] = {BCDTO10(TIME[0]), BCDTO10(TIME[1]), BCDTO10(TIME[2])};
-
-			OLED_ShowString(1, 2, "hour:");
-			OLED_ShowNum(1, 9, timesetting[2], 2);
-			OLED_ShowString(2, 2, "Minute:");
-			OLED_ShowNum(2, 9, timesetting[1], 2);
-			OLED_ShowString(3, 2, "Second:");
-			OLED_ShowNum(3, 9, timesetting[0], 2);
-			OLED_ShowString(4, 2, "Back");
-		}
-		if (MenuStatu == 51)
-		{
-			if (opt <= 0)
-				opt = 1;
-			uint8_t timesetting[3] = {BCDTO10(TIME[0]), BCDTO10(TIME[1]), BCDTO10(TIME[2])};
-
-			OLED_ShowString(1, 2, "hour:");
-			OLED_ShowNum(1, 9, timesetting[2], 2);
-			OLED_ShowString(2, 2, "Minute:");
-			OLED_ShowNum(2, 9, timesetting[1], 2);
-			OLED_ShowString(3, 2, "Second:");
-			OLED_ShowNum(3, 9, timesetting[0], 2);
-			OLED_ShowString(4, 2, "Back");
-
-			OLED_ShowString(opt, 1, ">");
-
-			if (Encoder_Sw_Down() == 1)
-			{
-				if (opt < 4)
-				{
-					timesetting[3 - opt]++;
-					if (timesetting[2] >= 24)
-						timesetting[2] -= 24;
-					if (timesetting[1] >= 60)
-						timesetting[1] -= 60;
-					if (timesetting[0] >= 60)
-						timesetting[0] -= 60;
-					TIME[0] = Z10BCD(timesetting[0]);
-					TIME[1] = Z10BCD(timesetting[1]);
-					TIME[2] = Z10BCD(timesetting[2]);
-				}
-				else if (opt == 4)
-				{
-					Ds1302Set();
-					MenuStatu = 0;
-					MenuIdx = 2;
+					optRecord = t;
 				}
 			}
-		}
-		//	"52.Playing Mode",
-		if (MenuStatu == 52)
-		{
-
-			OLED_ShowString(1, 1, "Select a option");
-			if (opt <= 0)
-				opt = 1;
-			OLED_ShowString(2, 1, PlayingMode[opt - 1]);
-			OLED_ShowString(3, 1, ">");
-			OLED_ShowString(3, 2, PlayingMode[opt]);
-			OLED_ShowString(4, 1, PlayingMode[opt + 1]);
-			for (int i = 0; i < 3; i++)
+			else if (opt == 2)
 			{
-			}
-			if (Encoder_Sw_Down() == 1) // 旋转编码器被按下
-			{
-				GPIO_SetBits(GPIOA, GPIO_Pin_7); // LED灯亮一下
-				Delay_ms(50);
-				OLED_Clear();
-				if (opt == 1)
+				while (1)
 				{
-					GPIO_SetBits(GPIOA, GPIO_Pin_4); // LED灯亮一下
+					int opt = MenuLoop(PlayingMode, 3);
 					GPIO_SetBits(GPIOA, GPIO_Pin_7); // LED灯亮一下
-				}
-				else if (opt == 2)
-				{
-					GPIO_ResetBits(GPIOA, GPIO_Pin_4); // LED灯亮一下
-					GPIO_ResetBits(GPIOA, GPIO_Pin_7); // LED灯亮一下
-				}
-				else if (opt == 3)
-				{
-					MenuStatu = 0;
-					MenuIdx = 2;
+					Delay_ms(50);
+					OLED_Clear();
+					if (opt == 2)
+					{
+						GPIO_SetBits(GPIOA, GPIO_Pin_4); // LED灯亮一下
+						GPIO_SetBits(GPIOA, GPIO_Pin_7); // LED灯亮一下
+					}
+					else if (opt == 1)
+					{
+						GPIO_ResetBits(GPIOA, GPIO_Pin_4); // LED灯
+						GPIO_ResetBits(GPIOA, GPIO_Pin_7); // LED灯
+					}
+					else if (opt == 3)
+					{
+						MenuIdx = 2;
+						break;
+					}
 				}
 			}
+
+			else if (opt == 3)
+			{
+				MenuStatu = 0;
+			}
 		}
-		optRecord = opt;
+		MenuIdx = 2;
+	}
+
+	if (MenuStatu > 30 && MenuStatu < 40)
+	{
+
+		uint8_t timesetting[3] = {BCDTO10(TIME[0]), BCDTO10(TIME[1]), BCDTO10(TIME[2])};
+
+		OLED_ShowString(1, 2, "hour:");
+		OLED_ShowNum(1, 9, timesetting[2], 2);
+		OLED_ShowString(2, 2, "Minute:");
+		OLED_ShowNum(2, 9, timesetting[1], 2);
+		OLED_ShowString(3, 2, "Second:");
+		OLED_ShowNum(3, 9, timesetting[0], 2);
+		OLED_ShowString(4, 2, "Back");
 	}
 }

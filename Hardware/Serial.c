@@ -215,7 +215,7 @@ void USART2_IRQHandler(void)
 		{
 			Serial_RxPacket[pRxPacket] = RxData; // 将数据存入数据包数组的指定位置
 			pRxPacket++;						 // 数据包的位置自增
-			if (pRxPacket >= 4)					 // 如果收够4个数据
+			if (pRxPacket >= 4)					 // 如果收够4	个数据
 			{
 				RxState = 2; // 置下一个状态
 			}
