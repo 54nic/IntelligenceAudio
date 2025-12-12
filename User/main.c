@@ -104,6 +104,10 @@ int main(void)
 	OLED_ShowPicture();
 
 	Delay_ms(1000);
+
+	GPIO_SetBits(GPIOA, GPIO_Pin_4);
+	GPIO_SetBits(GPIOA, GPIO_Pin_7);
+
 	while (1)
 	{
 		/* 读取当前时间 */
@@ -126,41 +130,44 @@ int main(void)
 			}
 		}
 
-		Serial_TxPacket[0] = 0x00;
-		Serial_TxPacket[1] = 0x00;
-		Serial_TxPacket[2] = 0x00;
-
+		// 主菜单
 		if (MenuStatu == 0)
 		{
 			int opt = MenuLoop(MainMenu, 5);
-			GPIO_SetBits(GPIOA, GPIO_Pin_7); // LED灯亮一下
+
 			MenuStatu = opt;
 			MenuIdx = 2;
 			Delay_ms(50);
 			OLED_Clear();
 		}
-		//"1.Music Statu",
+
+		// 音乐播放状态菜单
 		if (MenuStatu == 1)
 		{
 
 			int opt = MenuLoop(MusicStatu, 7);
 
-			GPIO_SetBits(GPIOA, GPIO_Pin_7); // LED灯亮一下
+			// LED灯亮一下
 			Delay_ms(50);
 			if (opt == 1)
 			{
 				if (!playing)
 				{
-					Serial_TxPacket[0] = 0x03;
-					Serial_TxPacket[1] = 0x01;
-					Serial_TxPacket[2] = 0x02;
+
+					Serial_SendByte(0x7e);
+					Serial_SendByte(0x03);
+					Serial_SendByte(0x01);
+					Serial_SendByte(0x02);
+					Serial_SendByte(0xEF);
 					playing = 1;
 				}
 				else
 				{
-					Serial_TxPacket[0] = 0x03; // 暂停
-					Serial_TxPacket[1] = 0x02;
-					Serial_TxPacket[2] = 0x01;
+					Serial_SendByte(0x7e);
+					Serial_SendByte(0x03);
+					Serial_SendByte(0x02);
+					Serial_SendByte(0x01);
+					Serial_SendByte(0xEF);
 					playing = 0;
 				}
 			}
@@ -169,12 +176,14 @@ int main(void)
 				Serial_TxPacket[0] = 0x03;
 				Serial_TxPacket[1] = 0x03;
 				Serial_TxPacket[2] = 0x00;
+				Serial_SendPacket();
 			}
 			else if (opt == 3)
 			{
 				Serial_TxPacket[0] = 0x03;
 				Serial_TxPacket[1] = 0x04;
 				Serial_TxPacket[2] = 0x07;
+				Serial_SendPacket();
 			}
 			else if (opt == 4)
 			{
@@ -242,19 +251,15 @@ int main(void)
 				MenuStatu = 0;
 				MenuIdx = 2;
 			}
-			Serial_SendPacket();						  // 串口发送数据包Serial_TxPacket
-			OLED_ShowHexNum(2, 1, Serial_TxPacket[0], 2); // 显示发送的数据包
-			OLED_ShowHexNum(2, 4, Serial_TxPacket[1], 2);
-			OLED_ShowHexNum(2, 7, Serial_TxPacket[2], 2);
 			Delay_ms(100);
 			OLED_Clear();
 		}
 
-		//	"2.Music List",
+		// 歌单菜单
 		if (MenuStatu == 2)
 		{
 			int lid = MenuLoop(MusicList, 10);
-			GPIO_SetBits(GPIOA, GPIO_Pin_7); // LED灯亮一下
+			// LED灯亮一下
 			Delay_ms(50);
 			OLED_Clear();
 			if (lid < 10)
@@ -267,17 +272,14 @@ int main(void)
 						opt = optRecord + 1;
 					if (tmp < 0)
 						opt = optRecord - 1;
-
 					if (opt != optRecord)
 						OLED_Clear();
-
 					OLED_ShowString(1, 1, "Edit Your Songs");
 					if (opt <= 0)
 						opt = 1;
 					uint8_t id = lid;
 					if (opt > ListNum[id] + 2)
 						opt = ListNum[id] + 2;
-
 					if (opt < ListNum[id])
 					{
 						OLED_ShowString(2, 1, Songs[List[id][opt - 1]]);
@@ -307,10 +309,9 @@ int main(void)
 						OLED_ShowString(3, 1, ">");
 						OLED_ShowString(3, 2, "Back");
 					}
-
 					if (Encoder_Sw_Down() == 1) // 旋转编码器被按下
 					{
-						GPIO_SetBits(GPIOA, GPIO_Pin_7); // LED灯亮一下
+						// LED灯亮一下
 						Delay_ms(50);
 						OLED_Clear();
 						if (opt == ListNum[id] + 1)
@@ -322,7 +323,6 @@ int main(void)
 						}
 						else if (opt == ListNum[id] + 2)
 							break;
-
 						else if (opt <= ListNum[id])
 						{
 							for (int i = opt; i < ListNum[id]; i++)
@@ -343,11 +343,11 @@ int main(void)
 				MenuIdx = 2;
 			}
 		}
-		//	"3.Alarm",
+		// 闹钟菜单
 		if (MenuStatu == 3)
 		{
 			int aid = MenuLoop(Alarm, 6);
-			GPIO_SetBits(GPIOA, GPIO_Pin_7); // LED灯亮一下
+			// LED灯亮一下
 			Delay_ms(50);
 			OLED_Clear();
 			if (aid < 6)
@@ -419,7 +419,7 @@ int main(void)
 				MenuStatu = 0;
 			MenuIdx = 2;
 		}
-		//	"4.Environment",
+		// 环境菜单
 		if (MenuStatu == 4)
 		{
 
@@ -445,7 +445,6 @@ int main(void)
 
 			if (Encoder_Sw_Down() == 1) // 旋转编码器被按下
 			{
-				GPIO_SetBits(GPIOA, GPIO_Pin_7); // LED灯亮一下
 				Delay_ms(50);
 				OLED_Clear();
 				MenuStatu = 0;
@@ -453,13 +452,12 @@ int main(void)
 			}
 		}
 
-		//	"5.Settings",
+		// 设置菜单
 		if (MenuStatu == 5)
 		{
 
 			int opt = MenuLoop(Settings, 3);
 
-			GPIO_SetBits(GPIOA, GPIO_Pin_7); // LED灯亮一下
 			Delay_ms(50);
 			OLED_Clear();
 			if (opt == 1)
@@ -522,21 +520,20 @@ int main(void)
 			{
 				while (1)
 				{
-					int opt = MenuLoop(PlayingMode, 3);
-					GPIO_SetBits(GPIOA, GPIO_Pin_7); // LED灯亮一下
+					int mode = MenuLoop(PlayingMode, 3);
 					Delay_ms(50);
 					OLED_Clear();
-					if (opt == 2)
+					if (mode == 2)
 					{
-						GPIO_SetBits(GPIOA, GPIO_Pin_4); // LED灯亮一下
-						GPIO_SetBits(GPIOA, GPIO_Pin_7); // LED灯亮一下
+						GPIO_SetBits(GPIOA, GPIO_Pin_4);
+						GPIO_SetBits(GPIOA, GPIO_Pin_7);
 					}
-					else if (opt == 1)
+					else if (mode == 1)
 					{
-						GPIO_ResetBits(GPIOA, GPIO_Pin_4); // LED灯
-						GPIO_ResetBits(GPIOA, GPIO_Pin_7); // LED灯
+						GPIO_ResetBits(GPIOA, GPIO_Pin_4);
+						GPIO_ResetBits(GPIOA, GPIO_Pin_7);
 					}
-					else if (opt == 3)
+					else if (mode == 3)
 					{
 						MenuIdx = 2;
 						break;
@@ -550,19 +547,5 @@ int main(void)
 			}
 		}
 		MenuIdx = 2;
-	}
-
-	if (MenuStatu > 30 && MenuStatu < 40)
-	{
-
-		uint8_t timesetting[3] = {BCDTO10(TIME[0]), BCDTO10(TIME[1]), BCDTO10(TIME[2])};
-
-		OLED_ShowString(1, 2, "hour:");
-		OLED_ShowNum(1, 9, timesetting[2], 2);
-		OLED_ShowString(2, 2, "Minute:");
-		OLED_ShowNum(2, 9, timesetting[1], 2);
-		OLED_ShowString(3, 2, "Second:");
-		OLED_ShowNum(3, 9, timesetting[0], 2);
-		OLED_ShowString(4, 2, "Back");
 	}
 }
