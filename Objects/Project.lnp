@@ -32,6 +32,7 @@
 ".\objects\ds1302.o"
 ".\objects\sys.o"
 ".\objects\encoder.o"
+".\objects\oled_data.o"
 ".\objects\main.o"
 ".\objects\stm32f10x_it.o"
 --library_type=microlib --strict --scatter ".\Objects\Project.sct"

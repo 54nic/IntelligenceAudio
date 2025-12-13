@@ -30,6 +30,7 @@
 .\objects\main.o: .\Library\misc.h
 .\objects\main.o: .\System\Delay.h
 .\objects\main.o: .\Hardware\OLED.h
+.\objects\main.o: .\Hardware\OLED_Data.h
 .\objects\main.o: .\Hardware\Serial.h
 .\objects\main.o: C:\Keil_v5\ARM\ARM5\Bin\..\include\stdio.h
 .\objects\main.o: .\Hardware\ds1302.h

@@ -32,3 +32,4 @@
 .\objects\encoder.o: .\System\Delay.h
 .\objects\encoder.o: C:\Keil_v5\ARM\ARM5\Bin\..\include\stdio.h
 .\objects\encoder.o: Hardware\OLED.h
+.\objects\encoder.o: Hardware\OLED_Data.h
