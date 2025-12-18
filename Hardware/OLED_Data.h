@@ -34,6 +34,16 @@ extern const ChineseCell_t OLED_CF16x16[];
 extern const uint8_t Diode[];
 extern const uint8_t Xyy[];
 extern const uint8_t Xxyy[];
+extern const uint8_t Playing_logo[];
+extern const uint8_t Stopping_logo[]   ;
+extern const uint8_t Last_logo[] ;
+extern const uint8_t Next_logo[] ;
+extern const uint8_t List_logo[];
+extern const uint8_t Vol_logo[];
+extern const uint8_t Back_logo[];
+extern const uint8_t Cycle_logo[]  ;
+extern const uint8_t Humid_logo[];
+extern const uint8_t Temperature_logo[];
 /*按照上面的格式，在这个位置加入新的图像数据声明*/
 //...
 
